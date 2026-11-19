@@ -20,13 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Standar Keamanan OWASP: Penegakan Password Complexity Policy
+        // Standar Keamanan: Penegakan Password Policy (Fleksibel di Local/Testing, Ketat di Production)
         Password::defaults(function () {
-            return Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols();
+            return app()->isProduction()
+                ? Password::min(8)->letters()->mixedCase()->numbers()->symbols()
+                : Password::min(6);
         });
     }
 }

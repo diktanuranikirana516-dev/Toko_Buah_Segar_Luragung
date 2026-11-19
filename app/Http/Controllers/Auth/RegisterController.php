@@ -65,8 +65,9 @@ class RegisterController extends Controller
         $request->session()->regenerate();
 
         // 5. Conditional Redirection Berdasarkan Role Terpilih
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.transaksi')->with('success', 'Selamat datang Administrator! Akun Anda berhasil didaftarkan dan Anda otomatis masuk ke panel admin.');
+        $request->session()->forget('url.intended');
+        if ($user->role === 'admin' || (method_exists($user, 'isAdmin') && $user->isAdmin())) {
+            return redirect()->route('dashboard')->with('success', 'Selamat datang Administrator! Akun Anda berhasil didaftarkan dan Anda langsung masuk ke panel admin.');
         }
 
         return redirect()->route('home')->with('success', 'Selamat datang! Akun Anda berhasil didaftarkan dan Anda otomatis masuk. Silakan pilih buah segar favorit Anda.');

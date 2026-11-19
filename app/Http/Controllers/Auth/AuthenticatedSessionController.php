@@ -41,13 +41,18 @@ public function store(LoginRequest $request): RedirectResponse
             $user->id
         );
 
-        // 5. Periksa role user dan arahkan ke halaman yang sesuai
+        // 5. Periksa role user dan arahkan ke halaman yang sesuai secara presisi
         if ($user->role === 'admin' || (method_exists($user, 'isAdmin') && $user->isAdmin())) {
-            // Jika admin, arahkan ke route 'dashboard'
-            return redirect()->intended(route('dashboard', absolute: false));
+            // Bersihkan intended URL agar admin tidak terjebak kembali ke beranda pelanggan (Single-Page / Home)
+            $request->session()->forget('url.intended');
+            return redirect()->route('dashboard')->with('success', 'Selamat datang di Panel Administrator, ' . $user->name . '!');
         } else {
-            // Jika pembeli / customer, arahkan langsung ke halaman utama belanja (Single-Page / Home-Centric)
-            return redirect()->intended(route('home', absolute: false));
+            // Jika pembeli / customer, arahkan ke beranda publik (hindari redirect ke panel admin jika sebelumnya mencoba akses admin)
+            $intended = $request->session()->pull('url.intended');
+            if ($intended && (str_contains($intended, '/dashboard') || str_contains($intended, '/transaksi-admin') || str_contains($intended, '/produk') || str_contains($intended, '/laporan') || str_contains($intended, '/pengaturan'))) {
+                return redirect()->route('home')->with('success', 'Selamat datang kembali, ' . $user->name . '!');
+            }
+            return $intended ? redirect()->to($intended) : redirect()->route('home');
         }
     }
 

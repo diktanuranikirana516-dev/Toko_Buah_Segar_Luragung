@@ -60,9 +60,10 @@ class RegisteredUserController extends Controller
         // Regenerasi sesi untuk mencegah Session Fixation Attack
         $request->session()->regenerate();
 
-        // Conditional Redirection
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.transaksi')->with('success', 'Selamat datang Administrator! Akun Anda berhasil didaftarkan dan Anda otomatis masuk ke panel admin.');
+        // Conditional Redirection Berdasarkan Role Terpilih
+        $request->session()->forget('url.intended');
+        if ($user->role === 'admin' || (method_exists($user, 'isAdmin') && $user->isAdmin())) {
+            return redirect()->route('dashboard')->with('success', 'Selamat datang Administrator! Akun Anda berhasil didaftarkan dan Anda langsung masuk ke panel admin.');
         }
 
         // Setelah mendaftar, arahkan customer langsung ke halaman utama belanja (Home-Centric)

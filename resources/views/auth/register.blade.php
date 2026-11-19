@@ -78,20 +78,18 @@
                 </label>
                 <div class="grid grid-cols-2 gap-3">
                     <!-- Opsi 1: Pelanggan (Customer) -->
-                    <label @click="selectedRole = 'customer'" 
-                           :class="selectedRole === 'customer' ? 'border-amber-600 bg-amber-50/80 shadow-xs ring-1 ring-amber-500' : 'border-stone-200 bg-stone-50/50 hover:bg-stone-100'"
-                           class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 cursor-pointer transition text-center select-none">
-                        <input type="radio" name="role" value="customer" x-model="selectedRole" class="sr-only">
+                    <label :class="selectedRole === 'customer' ? 'border-amber-600 bg-amber-50/80 shadow-xs ring-1 ring-amber-500' : 'border-stone-200 bg-stone-50/50 hover:bg-stone-100'"
+                           class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 cursor-pointer transition text-center select-none relative">
+                        <input type="radio" name="role" value="customer" x-model="selectedRole" {{ old('role', 'customer') === 'customer' ? 'checked' : '' }} class="sr-only">
                         <span class="text-2xl mb-1">🛒</span>
                         <span class="font-extrabold text-xs text-stone-900 block">Pelanggan</span>
                         <span class="text-[10px] text-stone-500 mt-0.5">Beli & Pesan Buah</span>
                     </label>
 
                     <!-- Opsi 2: Administrator (Admin) -->
-                    <label @click="selectedRole = 'admin'" 
-                           :class="selectedRole === 'admin' ? 'border-amber-600 bg-amber-50/80 shadow-xs ring-1 ring-amber-500' : 'border-stone-200 bg-stone-50/50 hover:bg-stone-100'"
-                           class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 cursor-pointer transition text-center select-none">
-                        <input type="radio" name="role" value="admin" x-model="selectedRole" class="sr-only">
+                    <label :class="selectedRole === 'admin' ? 'border-amber-600 bg-amber-50/80 shadow-xs ring-1 ring-amber-500' : 'border-stone-200 bg-stone-50/50 hover:bg-stone-100'"
+                           class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 cursor-pointer transition text-center select-none relative">
+                        <input type="radio" name="role" value="admin" x-model="selectedRole" {{ old('role') === 'admin' ? 'checked' : '' }} class="sr-only">
                         <span class="text-2xl mb-1">🛡️</span>
                         <span class="font-extrabold text-xs text-stone-900 block">Administrator</span>
                         <span class="text-[10px] text-stone-500 mt-0.5">Kelola Toko & Pesanan</span>
