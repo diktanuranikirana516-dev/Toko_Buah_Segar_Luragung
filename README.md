@@ -1,6 +1,7 @@
 # Toko Buah Segar Luragung
 
 Aplikasi berbasis web untuk manajemen inventaris dan transaksi penjualan pada **Toko Buah Segar Luragung**. Dibangun menggunakan framework Laravel untuk memenuhi Tugas Besar Mata Kuliah Cyber Security.
+URL: https://diktanuranikiranaa.my.id/
 
 ---
 
