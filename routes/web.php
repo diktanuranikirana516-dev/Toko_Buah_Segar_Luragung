@@ -109,25 +109,43 @@ Route::post('/checkout', [TokoBuahController::class, 'checkout'])
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| PROFILE PENGGUNA (CUSTOMER DAN ADMIN)
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::get('/admin/profile', [ProfileController::class, 'edit'])
+        ->name('admin.profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD DAN PENGELOLAAN KHUSUS ADMIN (ROLE-BASED ACCESS CONTROL)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Dashboard Admin
     Route::get('/dashboard', function () {
-
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Halaman ini khusus admin.');
-        }
-
         $totalProduk = Produk::count();
-
         $totalStok = Produk::sum('stok');
-
         $stokMenipis = Produk::where('stok', '<=', 5)->count();
-
         $totalNilaiAset = Produk::all()->sum(function ($item) {
             return $item->harga * $item->stok;
         });
-
         $produkTerbaru = Produk::latest()->take(5)->get();
 
         return view('dashboard', compact(
@@ -137,7 +155,6 @@ Route::middleware(['auth'])->group(function () {
             'totalNilaiAset',
             'produkTerbaru'
         ));
-
     })->name('dashboard');
 
 
@@ -157,17 +174,9 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::get('/laporan', function () {
-
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Akses ditolak. Halaman khusus admin.');
-        }
-
         $semuaProduk = Produk::all();
-
         $totalProduk = $semuaProduk->count();
-
         $totalStok = $semuaProduk->sum('stok');
-
         $totalNilaiAset = $semuaProduk->sum(function ($item) {
             return $item->harga * $item->stok;
         });
@@ -178,7 +187,6 @@ Route::middleware(['auth'])->group(function () {
             'totalStok',
             'totalNilaiAset'
         ));
-
     })->name('laporan.index');
 
 
@@ -189,44 +197,13 @@ Route::middleware(['auth'])->group(function () {
     */
 
     Route::get('/pengaturan', function () {
-
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Akses ditolak.');
-        }
-
         return app(PengaturanController::class)->edit();
-
     })->name('pengaturan.edit');
 
-
     Route::patch('/pengaturan', function (Request $request) {
-
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Akses ditolak.');
-        }
-
         return app(PengaturanController::class)->update($request);
-
     })->name('pengaturan.update');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROFILE ADMIN
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-
-    Route::get('/admin/profile', [ProfileController::class, 'edit'])
-        ->name('admin.profile.edit');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
 
     // Riwayat Seluruh Transaksi Penjualan untuk Admin & Ekspor Laporan
     Route::get('/transaksi-admin', [TokoBuahController::class, 'adminIndexTransaksi'])

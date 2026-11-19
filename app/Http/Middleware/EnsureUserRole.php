@@ -21,10 +21,15 @@ class EnsureUserRole
             return redirect()->route('login');
         }
 
-        $userRole = $user->role ?? 'customer';
+        $userRole = strtolower(trim($user->role ?? 'customer'));
 
-        if (! in_array($userRole, $roles, true)) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.');
+        $isAllowed = in_array($userRole, $roles, true);
+        if (!$isAllowed && in_array('admin', $roles, true) && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            $isAllowed = true;
+        }
+
+        if (! $isAllowed) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki hak akses untuk membuka halaman ini.');
         }
 
         return $next($request);

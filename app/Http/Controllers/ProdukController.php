@@ -37,13 +37,19 @@ class ProdukController extends Controller
             }
         }
 
-        Produk::create([
+        $newProduk = Produk::create([
             'nama_produk' => $validated['nama_produk'],
             'harga'       => $validated['harga'],
             'stok'        => $validated['stok'],
             'deskripsi'   => $validated['deskripsi'] ?? null,
             'gambar'      => $gambarPath,
         ]);
+
+        \App\Models\SecurityAuditLog::record(
+            'PRODUCT_CREATED',
+            "Produk buah baru '{$newProduk->nama_produk}' (Rp " . number_format($newProduk->harga, 0, ',', '.') . ", Stok: {$newProduk->stok} kg) ditambahkan oleh admin " . (auth()->user()?->name ?? 'Admin'),
+            ['produk_id' => $newProduk->id, 'nama_produk' => $newProduk->nama_produk, 'harga' => $newProduk->harga, 'stok' => $newProduk->stok]
+        );
 
         return redirect()->route('produk.index')->with('success', 'Produk buah berhasil ditambahkan!');
     }
@@ -85,17 +91,32 @@ class ProdukController extends Controller
             'gambar'      => $gambarPath,
         ]);
 
+        \App\Models\SecurityAuditLog::record(
+            'PRODUCT_UPDATED',
+            "Produk buah '{$produk->nama_produk}' (ID: {$produk->id}) diperbarui oleh admin " . (auth()->user()?->name ?? 'Admin'),
+            ['produk_id' => $produk->id, 'nama_produk' => $produk->nama_produk, 'harga' => $produk->harga, 'stok' => $produk->stok]
+        );
+
         return redirect()->route('produk.index')->with('success', 'Data produk berhasil diperbarui!');
     }
 
     // 6. Hapus Produk
     public function destroy(Produk $produk)
     {
+        $namaProduk = $produk->nama_produk;
+        $idProduk = $produk->id;
+
         if ($produk->gambar && Storage::disk('public')->exists($produk->gambar)) {
             Storage::disk('public')->delete($produk->gambar);
         }
 
         $produk->delete();
+
+        \App\Models\SecurityAuditLog::record(
+            'PRODUCT_DELETED',
+            "Produk buah '{$namaProduk}' (ID: {$idProduk}) dihapus oleh admin " . (auth()->user()?->name ?? 'Admin'),
+            ['produk_id' => $idProduk, 'nama_produk' => $namaProduk]
+        );
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
     }
